@@ -41,8 +41,9 @@ pipeline {
             sh """
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 "mkdir -p ~/${deployDir}"
 
-              tar --exclude='.git' --exclude='node_modules' -czf code.tar.gz .
+              tar --exclude='.git' --exclude='node_modules' --warning=no-file-changed -czf code.tar.gz .
               scp -o StrictHostKeyChecking=no code.tar.gz jenkins-deploy@95.216.144.222:~/${deployDir}/
+
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
                 cd ~/${deployDir}
                 tar -xzf code.tar.gz
