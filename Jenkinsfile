@@ -41,10 +41,7 @@ pipeline {
             sh """
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 "mkdir -p ~/${deployDir}"
 
-              bash -c '
-                shopt -s dotglob
-                scp -r -o StrictHostKeyChecking=no * jenkins-deploy@95.216.144.222:~/${deployDir}/
-              '
+              rsync -avz --exclude='.git' --exclude='node_modules' -e "ssh -o StrictHostKeyChecking=no" ./ jenkins-deploy@95.216.144.222:~/${deployDir}/
 
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
                 cd ~/${deployDir} &&
