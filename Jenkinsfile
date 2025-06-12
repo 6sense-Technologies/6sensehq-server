@@ -44,12 +44,12 @@ pipeline {
                 ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
                   set -e
                   cd ~/${deployDir}
-
+                  echo "$GITHUB_PAT" | docker login ghcr.io -u $GITHUB_USER --password-stdin &&
                   if [ ! -d ".git" ]; then
-                    git clone -b ${env.BRANCH_NAME} ${env.GIT_URL} .
+                    echo "$GITHUB_PAT" | git clone -b ${env.BRANCH_NAME} ${env.GIT_URL} .  --password-stdin
                   else
-                    git fetch origin ${env.BRANCH_NAME}
-                    git reset --hard origin/${env.BRANCH_NAME}
+                    echo "$GITHUB_PAT" | git fetch origin ${env.BRANCH_NAME} --password-stdin
+                    echo "$GITHUB_PAT" | git reset --hard origin/${env.BRANCH_NAME} --password-stdin
                   fi
 
                   docker compose up -d --remove-orphans
