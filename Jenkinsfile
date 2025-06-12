@@ -36,27 +36,29 @@ pipeline {
       steps {
         script {
           def deployDir = "${env.GHCR_REPO}"
+          withCredentials([usernamePassword(credentialsId: 'github-pat-6sensehq', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_PAT')]) {
+            sshagent(credentials: ['ssh-6sensehq']) {
+              sh """
+                ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 "mkdir -p ~/${deployDir}"
 
-          sshagent(credentials: ['ssh-6sensehq']) {
-            sh """
-              ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 "mkdir -p ~/${deployDir}"
+                ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
+                  set -e
+                  cd ~/${deployDir}
 
-              ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
-                set -e
-                cd ~/${deployDir}
+                  if [ ! -d ".git" ]; then
+                    git clone -b ${env.BRANCH_NAME} ${env.GIT_URL} .
+                  else
+                    git fetch origin ${env.BRANCH_NAME}
+                    git reset --hard origin/${env.BRANCH_NAME}
+                  fi
 
-                if [ ! -d ".git" ]; then
-                  git clone -b ${env.BRANCH_NAME} ${env.GIT_URL} .
-                else
-                  git fetch origin ${env.BRANCH_NAME}
-                  git reset --hard origin/${env.BRANCH_NAME}
-                fi
-
-                docker compose pull || true
-                docker compose up -d --remove-orphans
-              '
-            """
+                  docker compose up -d --remove-orphans
+                '
+              """
+            }
           }
+
+          
         }
       }
     }
