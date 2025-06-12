@@ -55,10 +55,14 @@ pipeline {
 
   post {
     success {
-      
+      script {
+        
+      }
     }
     failure {
-      
+      script {
+        
+      }
     }
   }
 }
