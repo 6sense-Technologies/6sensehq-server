@@ -40,8 +40,12 @@ pipeline {
           sshagent(credentials: ['ssh-6sensehq']) {
             sh """
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 "mkdir -p ~/${deployDir}"
-              scp -o StrictHostKeyChecking=no .[^.]* * jenkins-deploy@95.216.144.222:~/${deployDir}/
-              
+
+              bash -c '
+                shopt -s dotglob
+                scp -r -o StrictHostKeyChecking=no * jenkins-deploy@95.216.144.222:~/${deployDir}/
+              '
+
               ssh -o StrictHostKeyChecking=no jenkins-deploy@95.216.144.222 '
                 cd ~/${deployDir} &&
                 docker compose up -d --remove-orphans
