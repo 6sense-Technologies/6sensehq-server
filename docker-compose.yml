@@ -18,13 +18,20 @@ services:
   certbot:
     image: certbot/certbot
     container_name: certbot
+    restart: unless-stopped
+    depends_on:
+      - nginx
     volumes:
       - ./nginx/ssl:/etc/letsencrypt            # certs & renewal configs
       - ./nginx/certbot-webroot:/var/www/certbot # ACME webroot (MUST match nginx)
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Access to Docker socket for reloading nginx
+    networks:
+      - 6sensehq_net
     entrypoint: >
-      /bin/sh -c 'trap exit TERM;
+      /bin/sh -c 'apk add --no-cache docker-cli;
+      trap exit TERM;
       while :; do
-        certbot renew;
+        certbot renew --deploy-hook "docker exec nginx nginx -s reload";
         sleep 12h & wait $${!};
       done'
 
