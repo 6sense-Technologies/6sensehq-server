@@ -27,6 +27,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro # Access to Docker socket for reloading nginx
     networks:
       - 6sensehq_net
+    # Retired domains - never reissue or renew these certificates:
+    #   depshield-api.6sensehq.com
+    #   depshield.6sensehq.com
+    #   sami.6sensehq.com
+    #   sign.6sensehq.com
+    # `certbot renew` picks up every file in nginx/ssl/renewal/, so remove them on the server with:
+    #   docker exec certbot certbot delete --cert-name <domain>
     entrypoint: >
       /bin/sh -c 'apk add --no-cache docker-cli;
       trap exit TERM;
